@@ -49,23 +49,61 @@ class Nave {
     self.cargarCombustible(30000)
     self.acelerar(5000)
   }
+
+  method estaTranquila() {
+    return combustible >= 4000 and velocidad <= 12000
+  }
+
+  method recibirAmenaza() {
+    self.escapar()
+    self.avisar()
+  }
+
+  method escapar() {}
+  method avisar() {}
+
+  method estaDeRelajo() {
+    return self.estaTranquila() and self.tienePocaActividad()
+  }
+
+  method tienePocaActividad() {
+    return true
+  }
 }
 
 //Distintos tipos de nave
 
 class Navebaliza inherits Nave {
   var colorDeBaliza = "Rojo"
+  var cambioDeColor = false
 
   method colorDeBaliza() = colorDeBaliza
   
   method cambiarColorDeBaliza(colorNuevo) {
     colorDeBaliza = colorNuevo
+    cambioDeColor = true
   }
 
   override method prepararViaje() {
     super()
     self.cambiarColorDeBaliza("Verde")
     self.ponerseParaleloAlSol()
+  }
+
+  override method estaTranquila() {
+    return super() and colorDeBaliza != "Rojo"
+  }
+
+  override method escapar() {
+    self.irHaciaElSol()
+  }
+
+  override method avisar() {
+    self.cambiarColorDeBaliza("Rojo")
+  }
+
+  override method estaDeRelajo() {
+    return super() and not cambioDeColor
   }
 }
 
@@ -99,6 +137,19 @@ class NaveDePasajeros inherits Nave {
     self.cargarComida(4 * cantidadDePasajeros)
     self.cargarBebidas(6 * cantidadDePasajeros)
     self.acercarseUnPocoAlSol()
+  }
+
+  override method escapar() {
+    self.acelerar(velocidad)
+  }
+
+  override method avisar() {
+    self.descargarComida(1 * cantidadDePasajeros)
+    self.descargarBebidas(2 * cantidadDePasajeros)
+  }
+
+  override method estaDeRelajo() {
+    return super() and cantidadDeComida < 50
   }
 }
 
@@ -154,5 +205,54 @@ class NavesDeCombate inherits Nave {
     self.acelerar(15000)
     self.emitirMensaje("Saliendo en mision")
   }
+
+  override method estaTranquila() {
+    return super() and not misilesDesplegados
+  }
+
+  override method escapar() {
+    self.acercarseUnPocoAlSol()
+    self.acercarseUnPocoAlSol()
+  }
+
+  override method avisar() {
+    self.emitirMensaje("Amenza recibida")
+  }
 }
 
+//Dos variantes nuevas de nave
+
+class NaveHospital inherits NaveDePasajeros {
+  var quirofanosPreparados = false
+
+  method quirofanosPreparados() = quirofanosPreparados
+
+  method prepararQuirofanos() {
+    quirofanosPreparados = true
+  }
+
+  method tranquilizarQuirofanos() {
+    quirofanosPreparados = false
+  }
+  
+  override method estaTranquila() {
+    return super() and not quirofanosPreparados
+  }
+
+  override method recibirAmenaza() {
+    super()
+    self.prepararQuirofanos()
+  }
+}
+
+class NaveDeCombateSigilosa inherits NavesDeCombate {
+  override method estaTranquila() {
+    return super() and not estaInvisible
+  }
+
+  override method escapar() {
+    super()
+    self.desplegarMisiles()
+    self.ponerseInvisible()
+  }
+}
