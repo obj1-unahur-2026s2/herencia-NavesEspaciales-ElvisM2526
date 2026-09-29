@@ -1,9 +1,31 @@
 import example.*
 
-describe "group of tests for pepita" {
+describe "Tests de Naves Espaciales" {
 
-  test "pepita has initial energy" {
-    assert.equals(100, pepita.energy())
+  test "Nave Baliza prepara viaje correctamente" {
+    const baliza = new Navebaliza()
+    baliza.prepararViaje()
+
+    assert.equals("Verde", baliza.colorDeBaliza())
+    assert.equals(30000, baliza.combustible())
+    assert.equals(5000, baliza.velocidad())
   }
 
+  test "Nave de Pasajeros recibe amenaza y escapa y tambien avisa" {
+    const pasajeros = new NaveDePasajeros(cantidadDePasajeros = 10, cantidadDeComida = 20, cantidadDeBebidas = 30, velocidad = 1000)
+    pasajeros.recibirAmenaza()
+
+    assert.equals(2000, pasajeros.velocidad())
+    assert.equals(10, pasajeros.cantidadDeComida())
+    assert.equals(10, pasajeros.cantidadDeBebidas())
+  }
+
+  test "Nave de Combate Sigilosa esta tranquila si no esta invisible" {
+    const sigilosa = new NaveDeCombateSigilosa(combustible = 5000, velocidad = 10000)
+    
+    assert.that(sigilosa.estaTranquila())
+    
+    sigilosa.ponerseInvisible()
+    assert.notThat(sigilosa.estaTranquila())
+  }
 }
